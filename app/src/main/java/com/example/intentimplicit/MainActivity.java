@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onActivityResult(Boolean result) {
                         if (result) {
+                            requestLauncherOpenCamera.launch(new Intent(MediaStore.ACTION_IMAGE_CAPTURE));
 
                         } else {
                             if (ActivityCompat.checkSelfPermission(MainActivity.this,
@@ -115,5 +116,18 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+
+    private ActivityResultLauncher<Intent> requestLauncherOpenCamera = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null){
+             Bitmap bitmap = (Bitmap) result.getData().getExtras().get("data");
+             mImg.setImageBitmap(bitmap);
+            }
+
+        }
+    });
 
         }

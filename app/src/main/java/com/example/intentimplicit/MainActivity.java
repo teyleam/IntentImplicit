@@ -62,6 +62,12 @@ public class MainActivity extends AppCompatActivity {
                 requestLaucherCamera.launch(Manifest.permission.CAMERA);
             }
         });
+        mBtnGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestLaucherGallery.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+        });
     }
 
     @Override
@@ -129,5 +135,53 @@ public class MainActivity extends AppCompatActivity {
 
         }
     });
+    //Gallery
+    private ActivityResultLauncher<String> requestLaucherGallery = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
+            new ActivityResultCallback<Boolean>() {
+                @Override
+                public void onActivityResult(Boolean result) {
+                    if (result) {
+                        requestLauncherOpenGallery.launch(new Intent(MediaStore.ACTION_PICK_IMAGES));
+                    } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("Read External storage permission go to setting enable");
+                            builder.setPositiveButton("Setting", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", null, null);
+                                    intent.setData(uri);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                }
+                            });
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    requestLaucherGallery.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                                }
+                            }).show();
+                        } else {
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package", null, null);
+                            intent.setData(uri);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            }
+                        }
+            });
 
-        }
+    private ActivityResultLauncher<Intent> requestLauncherOpenGallery = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null){
+                       Uri uri = result.getData().getData();
+                        mImg.setImageURI(uri);
+                    }
+
+                }
+            });
+
+
+}
